@@ -17,7 +17,7 @@
 
 
 
-  <meta name="description" content="zzz"/>
+  <meta name="description" content="第一章 多线程技能"/>
 
 
 
@@ -40,7 +40,7 @@
 
 
 
-<link rel="canonical" href="http://yoursite.com/2018/02/19/hello-world/"/>
+<link rel="canonical" href="http://zllmath.me/2018/03/05/Thread1/"/>
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
@@ -77,7 +77,7 @@
 
 
 
-    <title> Hello World - zllmath </title>
+    <title> 第一章 多线程技能 - zllmath </title>
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -193,14 +193,20 @@
     <header class="post-header">
       <h1 class="post-title">
         
-          Hello World
+          第一章 多线程技能
         
       </h1>
 
       <div class="post-meta">
         <span class="post-time">
-          2018-02-19
+          2018-03-05
         </span>
+        
+          <div class="post-category">
+            
+              <a href="/categories/Java多线程编程核心技术/">Java多线程编程核心技术</a>
+            
+          </div>
         
         
       </div>
@@ -211,22 +217,39 @@
   <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Quick-Start"><span class="toc-text">Quick Start</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-a-new-post"><span class="toc-text">Create a new post</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Run-server"><span class="toc-text">Run server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Generate-static-files"><span class="toc-text">Generate static files</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deploy-to-remote-sites"><span class="toc-text">Deploy to remote sites</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-使用多线程"><span class="toc-text">1.2 使用多线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-currentThread"><span class="toc-text">1.3 currentThread()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-isAlive"><span class="toc-text">1.4 isAlive()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-sleep"><span class="toc-text">1.5 sleep()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-getId"><span class="toc-text">1.6 getId()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-停止线程"><span class="toc-text">1.7 停止线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-2-判断线程是否是停止状态"><span class="toc-text">1.7.2 判断线程是否是停止状态</span></a></li></ol></li></ol>
     </div>
   </div>
 
 
     <div class="post-content">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <h2 id="1-2-使用多线程"><a href="#1-2-使用多线程" class="headerlink" title="1.2 使用多线程"></a>1.2 使用多线程</h2><ul>
+<li>继承Thread类，重写run()方法。</li>
+<li>实现Runnable接口，实现run()方法。</li>
+</ul>
+<h2 id="1-3-currentThread"><a href="#1-3-currentThread" class="headerlink" title="1.3 currentThread()"></a>1.3 currentThread()</h2><ul>
+<li>currentThread()方法可返回代码块正在被哪个线程所调用。Thread.currentThread().getName()。</li>
+</ul>
+<h2 id="1-4-isAlive"><a href="#1-4-isAlive" class="headerlink" title="1.4 isAlive()"></a>1.4 isAlive()</h2><ul>
+<li>方法isAlive()的作用是测试线程是否处于活动状态。活动状态是指线程正处于运行或准备开始运行的状态。thread.isAlive()。</li>
+</ul>
+<h2 id="1-5-sleep"><a href="#1-5-sleep" class="headerlink" title="1.5 sleep()"></a>1.5 sleep()</h2><ul>
+<li>方法sleep()的作用是在指定的毫秒数内让当前“正在执行的线程”休眠（暂停执行）。这个“正在执行的线程”是指this.currentThread()返回的线程。</li>
+</ul>
+<h2 id="1-6-getId"><a href="#1-6-getId" class="headerlink" title="1.6 getId()"></a>1.6 getId()</h2><ul>
+<li>getId()方法的作用是获取线程的唯一标识。</li>
+</ul>
+<h2 id="1-7-停止线程"><a href="#1-7-停止线程" class="headerlink" title="1.7 停止线程"></a>1.7 停止线程</h2><p>在java中，有以下3种方法可以终止正在运行的线程：</p>
+<ol>
+<li>使用退出标志，使线程正常退出，也就是当run()方法完成后线程终止。</li>
+<li>使用stop()方法强行终止线程，但是不推荐，因为stop()和suspend()及resume()一样，都是过期作废的方法，使用他们可能产生不可预料的结果。</li>
+<li>使用interrupt()方法终端线程。调用interrupt()方法仅仅是给当前线程打了一个停止的标记，线程并不会立刻停止。</li>
+</ol>
+<h3 id="1-7-2-判断线程是否是停止状态"><a href="#1-7-2-判断线程是否是停止状态" class="headerlink" title="1.7.2 判断线程是否是停止状态"></a>1.7.2 判断线程是否是停止状态</h3><ol>
+<li>this.interruoted()：测试当前线程是否已经是中断状态，执行后具有将标志状态置为false的功能。</li>
+<li>this.isInterrupted()：测试线程Thread对象是否已经是中断状态，但不清除状态标识。</li>
+</ol>
 
       
     </div>
@@ -238,11 +261,11 @@
   <div class="post-copyright">
     <p class="copyright-item">
       <span>原文作者: </span>
-      <a href="http://yoursite.com">zll</a>
+      <a href="http://zllmath.me">zll</a>
     </p>
     <p class="copyright-item">
       <span>原文链接: </span>
-      <a href="http://yoursite.com/2018/02/19/hello-world/">http://yoursite.com/2018/02/19/hello-world/</a>
+      <a href="http://zllmath.me/2018/03/05/Thread1/">http://zllmath.me/2018/03/05/Thread1/</a>
     </p>
     <p class="copyright-item">
       <span>许可协议: </span>
@@ -264,12 +287,12 @@
         
   <nav class="post-nav">
     
-      <a class="prev" href="/2018/02/19/test/">
-        <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">数据结构与算法 笔记</span>
-        <span class="prev-text nav-mobile">上一篇</span>
-      </a>
     
+      <a class="next" href="/2018/02/19/test/">
+        <span class="next-text nav-default">数据结构与算法 笔记</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
     
   </nav>
 
