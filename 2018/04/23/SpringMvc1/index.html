@@ -17,10 +17,12 @@
 
 
 
-  <meta name="description" content="第一章 多线程技能"/>
+  <meta name="description" content="解决速度问题的核心主要是解决海量数据操作问题和高并发问题，网站复杂的架构就是从这两个问题演变出来的"/>
 
 
 
+
+  <meta name="keywords" content="SpringMVC, zllmath" />
 
 
 
@@ -40,7 +42,7 @@
 
 
 
-<link rel="canonical" href="http://zllmath.me/2018/03/05/Thread1/"/>
+<link rel="canonical" href="http://zllmath.me/2018/04/23/SpringMvc1/"/>
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
@@ -77,7 +79,7 @@
 
 
 
-    <title> 第一章 多线程技能 - zllmath </title>
+    <title> 看透SpringMVC（一）：网站架构及其演变过程 - zllmath </title>
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -193,18 +195,18 @@
     <header class="post-header">
       <h1 class="post-title">
         
-          第一章 多线程技能
+          看透SpringMVC（一）：网站架构及其演变过程
         
       </h1>
 
       <div class="post-meta">
         <span class="post-time">
-          2018-03-05
+          2018-04-23
         </span>
         
           <div class="post-category">
             
-              <a href="/categories/Java多线程编程核心技术/">Java多线程编程核心技术</a>
+              <a href="/categories/SpringMVC/">SpringMVC</a>
             
           </div>
         
@@ -217,39 +219,21 @@
   <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-使用多线程"><span class="toc-text">1.2 使用多线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-currentThread"><span class="toc-text">1.3 currentThread()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-isAlive"><span class="toc-text">1.4 isAlive()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-sleep"><span class="toc-text">1.5 sleep()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-getId"><span class="toc-text">1.6 getId()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-停止线程"><span class="toc-text">1.7 停止线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-2-判断线程是否是停止状态"><span class="toc-text">1.7.2 判断线程是否是停止状态</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-1-软件的三大类型"><span class="toc-text">1.1 软件的三大类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-2-基础的软件架构"><span class="toc-text">1.2 基础的软件架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-3-架构演变的起点"><span class="toc-text">1.3 架构演变的起点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-4-海量数据的解决方案"><span class="toc-text">1.4 海量数据的解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-1-缓存和页面静态化"><span class="toc-text">1.4.1 缓存和页面静态化</span></a></li></ol></li></ol>
     </div>
   </div>
 
 
     <div class="post-content">
       
-        <h2 id="1-2-使用多线程"><a href="#1-2-使用多线程" class="headerlink" title="1.2 使用多线程"></a>1.2 使用多线程</h2><ul>
-<li>继承Thread类，重写run()方法。</li>
-<li>实现Runnable接口，实现run()方法。</li>
+        <h1 id="1-1-软件的三大类型"><a href="#1-1-软件的三大类型" class="headerlink" title="1.1 软件的三大类型"></a>1.1 软件的三大类型</h1><ul>
+<li>单机软件，BS，CS<h1 id="1-2-基础的软件架构"><a href="#1-2-基础的软件架构" class="headerlink" title="1.2 基础的软件架构"></a>1.2 基础的软件架构</h1></li>
+<li>BS结构网络传输的分解方式为2种：1.标准的OSI参考模型 2.TCP/IP参考模型<br><img src="/2018/04/23/SpringMvc1/pic/网络协议模型.png" alt="网络协议模型"><br>&emsp;&emsp;OSI参考模型一共分为7层,不过它主要用于教学，实际使用中更多的是TCP/IP的4层模型。对于TCP/IP4层模型可以简单理解为：</li>
+<li>网络接入层：将需要连接的节点接入网络，从而为数据传输提供条件。</li>
+<li>网际互连层：找到要传输数据的目标节点。</li>
+<li>传输层：实际传输数据。</li>
+<li>应用层：使用接受到的数据。<br>&emsp;&emsp;BS结构中TCP/IP模型中的网络接入层没用相关协议，网际互连层是IP协议，传输层是TCP协议，应用层是HTTP协议。<br>&emsp;&emsp;另外在BS结构中还使用了DNS协议，而且在HTTP上层还有相关的规范，如Java Web开发中使用的是Servlet标准。<h1 id="1-3-架构演变的起点"><a href="#1-3-架构演变的起点" class="headerlink" title="1.3 架构演变的起点"></a>1.3 架构演变的起点</h1>&emsp;&emsp;当数据和流量变得越来越大时，需要将应用程序和数据库分别放到不同的主机中。<br><img src="/2018/04/23/SpringMvc1/pic/应用和数据分离结构图.png" alt="应用和数据分离结构图"><h1 id="1-4-海量数据的解决方案"><a href="#1-4-海量数据的解决方案" class="headerlink" title="1.4 海量数据的解决方案"></a>1.4 海量数据的解决方案</h1><h2 id="1-4-1-缓存和页面静态化"><a href="#1-4-1-缓存和页面静态化" class="headerlink" title="1.4.1 缓存和页面静态化"></a>1.4.1 缓存和页面静态化</h2>&emsp;&emsp;数据量大这个问题直接的解决方法是使用缓存，缓存就是将从数据库中取得的数据暂时保存起来，在下次使用时，无需再从数据库中获取，这样可以大大降低数据库的压力。<br>&emsp;&emsp;缓存的使用方式可以分为通过程序直接保存到内存中和使用缓存框架两种方式。程序直接操作主要是使用Map，尤其是CurrentHashMap，而常用的缓存框架有Ehcache、Memcache和Redis等。缓存使用过程中最重要的问题是什么时候创建缓存和缓存的失效机制。缓存可以在第一次获取时创建，也可以在程序启动和缓存失效后立即创建。缓存的失效可以分为定期失效，也可以在数据发送变化时失效。如果按后者，还可以分为粗粒度失效和细粒度失效。<br>&emsp;&emsp;缓存主要适用于数据变化不是很频繁的情况。而且如果是定期失效（数据修改时不失效）的失效机制，实时性要求也不能太高。<br>&emsp;&emsp;跟缓存相似的另一种技术叫页面静态化，即将程序最后生成的页面保存起来。使用页面静态化就不需要每次调用都生成静态页面，这样不但不需要查询数据库，而且连应用程序处理都省了。<br>&emsp;&emsp;页面静态化可以在程序中使用模板技术生成</li>
 </ul>
-<h2 id="1-3-currentThread"><a href="#1-3-currentThread" class="headerlink" title="1.3 currentThread()"></a>1.3 currentThread()</h2><ul>
-<li>currentThread()方法可返回代码块正在被哪个线程所调用。Thread.currentThread().getName()。</li>
-</ul>
-<h2 id="1-4-isAlive"><a href="#1-4-isAlive" class="headerlink" title="1.4 isAlive()"></a>1.4 isAlive()</h2><ul>
-<li>方法isAlive()的作用是测试线程是否处于活动状态。活动状态是指线程正处于运行或准备开始运行的状态。thread.isAlive()。</li>
-</ul>
-<h2 id="1-5-sleep"><a href="#1-5-sleep" class="headerlink" title="1.5 sleep()"></a>1.5 sleep()</h2><ul>
-<li>方法sleep()的作用是在指定的毫秒数内让当前“正在执行的线程”休眠（暂停执行）。这个“正在执行的线程”是指this.currentThread()返回的线程。</li>
-</ul>
-<h2 id="1-6-getId"><a href="#1-6-getId" class="headerlink" title="1.6 getId()"></a>1.6 getId()</h2><ul>
-<li>getId()方法的作用是获取线程的唯一标识。</li>
-</ul>
-<h2 id="1-7-停止线程"><a href="#1-7-停止线程" class="headerlink" title="1.7 停止线程"></a>1.7 停止线程</h2><p>在java中，有以下3种方法可以终止正在运行的线程：</p>
-<ol>
-<li>使用退出标志，使线程正常退出，也就是当run()方法完成后线程终止。</li>
-<li>使用stop()方法强行终止线程，但是不推荐，因为stop()和suspend()及resume()一样，都是过期作废的方法，使用他们可能产生不可预料的结果。</li>
-<li>使用interrupt()方法终端线程。调用interrupt()方法仅仅是给当前线程打了一个停止的标记，线程并不会立刻停止。</li>
-</ol>
-<h3 id="1-7-2-判断线程是否是停止状态"><a href="#1-7-2-判断线程是否是停止状态" class="headerlink" title="1.7.2 判断线程是否是停止状态"></a>1.7.2 判断线程是否是停止状态</h3><ol>
-<li>this.interrupted()：测试当前线程是否已经是中断状态，执行后具有将标志状态置为false的功能。</li>
-<li>this.isInterrupted()：测试线程Thread对象是否已经是中断状态，但不清除状态标识。</li>
-</ol>
 
       
     </div>
@@ -265,7 +249,7 @@
     </p>
     <p class="copyright-item">
       <span>原文链接: </span>
-      <a href="http://zllmath.me/2018/03/05/Thread1/">http://zllmath.me/2018/03/05/Thread1/</a>
+      <a href="http://zllmath.me/2018/04/23/SpringMvc1/">http://zllmath.me/2018/04/23/SpringMvc1/</a>
     </p>
     <p class="copyright-item">
       <span>许可协议: </span>
@@ -283,19 +267,25 @@
     
       <footer class="post-footer">
         
+          <div class="post-tags">
+            
+              <a href="/tags/SpringMVC/">SpringMVC</a>
+            
+          </div>
+        
         
         
   <nav class="post-nav">
     
-      <a class="prev" href="/2018/03/10/Spring Cloud（三）：服务治理 Spring Cloud Eureka/">
+      <a class="prev" href="/2018/04/24/jvm1/">
         <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">Spring Cloud（三）：服务治理 Spring Cloud Eureka</span>
+        <span class="prev-text nav-default">深入理解Java虚拟机（一）：Java内存区域与内存溢出异常</span>
         <span class="prev-text nav-mobile">上一篇</span>
       </a>
     
     
-      <a class="next" href="/2018/02/19/test/">
-        <span class="next-text nav-default">数据结构与算法 笔记</span>
+      <a class="next" href="/2018/03/10/Spring Cloud（三）：服务治理 Spring Cloud Eureka/">
+        <span class="next-text nav-default">Spring Cloud（三）：服务治理 Spring Cloud Eureka</span>
         <span class="prev-text nav-mobile">下一篇</span>
         <i class="iconfont icon-right"></i>
       </a>

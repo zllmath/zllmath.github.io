@@ -17,10 +17,12 @@
 
 
 
-  <meta name="description" content="第一章 多线程技能"/>
+  <meta name="description" content="跨域请求"/>
 
 
 
+
+  <meta name="keywords" content="小组分享, zllmath" />
 
 
 
@@ -40,7 +42,7 @@
 
 
 
-<link rel="canonical" href="http://zllmath.me/2018/03/05/Thread1/"/>
+<link rel="canonical" href="http://zllmath.me/2018/06/13/request/"/>
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
@@ -77,7 +79,7 @@
 
 
 
-    <title> 第一章 多线程技能 - zllmath </title>
+    <title> 跨域请求 - zllmath </title>
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -193,20 +195,14 @@
     <header class="post-header">
       <h1 class="post-title">
         
-          第一章 多线程技能
+          跨域请求
         
       </h1>
 
       <div class="post-meta">
         <span class="post-time">
-          2018-03-05
+          2018-06-13
         </span>
-        
-          <div class="post-category">
-            
-              <a href="/categories/Java多线程编程核心技术/">Java多线程编程核心技术</a>
-            
-          </div>
         
         
       </div>
@@ -217,39 +213,41 @@
   <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-使用多线程"><span class="toc-text">1.2 使用多线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-currentThread"><span class="toc-text">1.3 currentThread()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-isAlive"><span class="toc-text">1.4 isAlive()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-sleep"><span class="toc-text">1.5 sleep()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-getId"><span class="toc-text">1.6 getId()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-停止线程"><span class="toc-text">1.7 停止线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-2-判断线程是否是停止状态"><span class="toc-text">1.7.2 判断线程是否是停止状态</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#跨域资源共享（-CORS-）"><span class="toc-text">跨域资源共享（ CORS ）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简单请求"><span class="toc-text">简单请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#预检请求"><span class="toc-text">预检请求</span></a></li></ol>
     </div>
   </div>
 
 
     <div class="post-content">
       
-        <h2 id="1-2-使用多线程"><a href="#1-2-使用多线程" class="headerlink" title="1.2 使用多线程"></a>1.2 使用多线程</h2><ul>
-<li>继承Thread类，重写run()方法。</li>
-<li>实现Runnable接口，实现run()方法。</li>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>&emsp;&emsp;当一个资源从与该资源本身所在的服务器不同的域或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。</p>
+<p>&emsp;&emsp;出于安全原因，浏览器限制从脚本内发起的跨源HTTP请求。例如，XMLHttpRequest和Fetch API遵循同源策略。 这意味着使用这些API的Web应用程序只能从加载应用程序的同一个域请求HTTP资源，除非使用CORS头文件。</p>
+<p>&emsp;&emsp;跨域资源共享（ CORS ）机制允许 Web 应用服务器进行跨域访问控制，从而使跨域数据传输得以安全进行。</p>
+<h2 id="跨域资源共享（-CORS-）"><a href="#跨域资源共享（-CORS-）" class="headerlink" title="跨域资源共享（ CORS ）"></a>跨域资源共享（ CORS ）</h2><p>&emsp;&emsp;CORS Headers</p>
+<ul>
+<li>Access-Control-Allow-Origin<br>Indicates whether the response can be shared.</li>
+<li>Access-Control-Allow-Credentials<br>Indicates whether or not the response to the request can be exposed when the credentials flag is true.</li>
+<li>Access-Control-Allow-Headers<br>Used in response to a preflight request to indicate which HTTP headers can be used when making the actual request.</li>
+<li>Access-Control-Allow-Methods<br>Specifies the method or methods allowed when accessing the resource in response to a preflight request.</li>
+<li>Access-Control-Expose-Headers<br>Indicates which headers can be exposed as part of the response by listing their names.</li>
+<li>Access-Control-Max-Age<br>Indicates how long the results of a preflight request can be cached.</li>
+<li>Access-Control-Request-Headers<br>Used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.</li>
+<li>Access-Control-Request-Method<br>Used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.</li>
+<li>Origin<br>Indicates where a fetch originates from.</li>
 </ul>
-<h2 id="1-3-currentThread"><a href="#1-3-currentThread" class="headerlink" title="1.3 currentThread()"></a>1.3 currentThread()</h2><ul>
-<li>currentThread()方法可返回代码块正在被哪个线程所调用。Thread.currentThread().getName()。</li>
+<h2 id="简单请求"><a href="#简单请求" class="headerlink" title="简单请求"></a>简单请求</h2><p>&emsp;&emsp;某些请求不会触发 CORS 预检请求，称这样的请求为“简单请求”。</p>
+<ul>
+<li>使用下列方法之一：<br>GET HEAD POST<br><span id="jump"></span></li>
+<li><a href="https://fetch.spec.whatwg.org/" target="_blank" rel="noopener">Fetch</a> 规范定义了对 CORS 安全的首部字段集合，不得人为设置该集合之外的其他首部字段。该集合为：<br>Accept Accept-Language Content-Language Content-Type DPR Downlink Save-Data Viewport-Width Width</li>
+<li>Content-Type 的值仅限于下列三者之一：<br>text/plain multipart/form-data application/x-www-form-urlencoded</li>
 </ul>
-<h2 id="1-4-isAlive"><a href="#1-4-isAlive" class="headerlink" title="1.4 isAlive()"></a>1.4 isAlive()</h2><ul>
-<li>方法isAlive()的作用是测试线程是否处于活动状态。活动状态是指线程正处于运行或准备开始运行的状态。thread.isAlive()。</li>
+<h2 id="预检请求"><a href="#预检请求" class="headerlink" title="预检请求"></a>预检请求</h2><p>&emsp;&emsp;与前述简单请求不同，“需预检的请求”要求必须首先使用 OPTIONS   方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求。”预检请求“的使用，可以避免跨域请求对服务器的用户数据产生未预期的影响。</p>
+<p>&emsp;&emsp;当请求满足下述任一条件时，即应首先发送预检请求：</p>
+<ul>
+<li>使用了下面任一 HTTP 方法：<br>PUT DELETE CONNECT OPTIONS TRACE PATCH</li>
+<li>人为设置了对 CORS 安全的<a href="#jump">首部字段集合</a>之外的其他首部字段。</li>
+<li>Content-Type 的值不属于上述值之一<br>&emsp;&emsp;</li>
 </ul>
-<h2 id="1-5-sleep"><a href="#1-5-sleep" class="headerlink" title="1.5 sleep()"></a>1.5 sleep()</h2><ul>
-<li>方法sleep()的作用是在指定的毫秒数内让当前“正在执行的线程”休眠（暂停执行）。这个“正在执行的线程”是指this.currentThread()返回的线程。</li>
-</ul>
-<h2 id="1-6-getId"><a href="#1-6-getId" class="headerlink" title="1.6 getId()"></a>1.6 getId()</h2><ul>
-<li>getId()方法的作用是获取线程的唯一标识。</li>
-</ul>
-<h2 id="1-7-停止线程"><a href="#1-7-停止线程" class="headerlink" title="1.7 停止线程"></a>1.7 停止线程</h2><p>在java中，有以下3种方法可以终止正在运行的线程：</p>
-<ol>
-<li>使用退出标志，使线程正常退出，也就是当run()方法完成后线程终止。</li>
-<li>使用stop()方法强行终止线程，但是不推荐，因为stop()和suspend()及resume()一样，都是过期作废的方法，使用他们可能产生不可预料的结果。</li>
-<li>使用interrupt()方法终端线程。调用interrupt()方法仅仅是给当前线程打了一个停止的标记，线程并不会立刻停止。</li>
-</ol>
-<h3 id="1-7-2-判断线程是否是停止状态"><a href="#1-7-2-判断线程是否是停止状态" class="headerlink" title="1.7.2 判断线程是否是停止状态"></a>1.7.2 判断线程是否是停止状态</h3><ol>
-<li>this.interrupted()：测试当前线程是否已经是中断状态，执行后具有将标志状态置为false的功能。</li>
-<li>this.isInterrupted()：测试线程Thread对象是否已经是中断状态，但不清除状态标识。</li>
-</ol>
 
       
     </div>
@@ -265,7 +263,7 @@
     </p>
     <p class="copyright-item">
       <span>原文链接: </span>
-      <a href="http://zllmath.me/2018/03/05/Thread1/">http://zllmath.me/2018/03/05/Thread1/</a>
+      <a href="http://zllmath.me/2018/06/13/request/">http://zllmath.me/2018/06/13/request/</a>
     </p>
     <p class="copyright-item">
       <span>许可协议: </span>
@@ -283,19 +281,19 @@
     
       <footer class="post-footer">
         
+          <div class="post-tags">
+            
+              <a href="/tags/小组分享/">小组分享</a>
+            
+          </div>
+        
         
         
   <nav class="post-nav">
     
-      <a class="prev" href="/2018/03/10/Spring Cloud（三）：服务治理 Spring Cloud Eureka/">
-        <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">Spring Cloud（三）：服务治理 Spring Cloud Eureka</span>
-        <span class="prev-text nav-mobile">上一篇</span>
-      </a>
     
-    
-      <a class="next" href="/2018/02/19/test/">
-        <span class="next-text nav-default">数据结构与算法 笔记</span>
+      <a class="next" href="/2018/04/24/jvm1/">
+        <span class="next-text nav-default">深入理解Java虚拟机（一）：Java内存区域与内存溢出异常</span>
         <span class="prev-text nav-mobile">下一篇</span>
         <i class="iconfont icon-right"></i>
       </a>
