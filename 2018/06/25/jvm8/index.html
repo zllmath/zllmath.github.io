@@ -17,7 +17,7 @@
 
 
 
-  <meta name="description" content="JVM（四）：垃圾收集算法"/>
+  <meta name="description" content="JVM（八）：Class类文件的结构"/>
 
 
 
@@ -42,7 +42,7 @@
 
 
 
-<link rel="canonical" href="http://zllmath.me/2018/06/20/jvm4/"/>
+<link rel="canonical" href="http://zllmath.me/2018/06/25/jvm8/"/>
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=2.6.0" />
@@ -79,7 +79,7 @@
 
 
 
-    <title> JVM（四）：垃圾收集算法 - zllmath </title>
+    <title> JVM（八）：Class类文件的结构 - zllmath </title>
   </head>
 
   <body><div id="mobile-navbar" class="mobile-navbar">
@@ -195,13 +195,13 @@
     <header class="post-header">
       <h1 class="post-title">
         
-          JVM（四）：垃圾收集算法
+          JVM（八）：Class类文件的结构
         
       </h1>
 
       <div class="post-meta">
         <span class="post-time">
-          2018-06-20
+          2018-06-25
         </span>
         
           <div class="post-category">
@@ -219,32 +219,37 @@
   <div class="post-toc" id="post-toc">
     <h2 class="post-toc-title">文章目录</h2>
     <div class="post-toc-content">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#标记-清除算法"><span class="toc-text">标记-清除算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复制算法"><span class="toc-text">复制算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#标记-整理算法"><span class="toc-text">标记-整理算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分代收集算法"><span class="toc-text">分代收集算法</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#魔数与Class文件的版本"><span class="toc-text">魔数与Class文件的版本</span></a></li></ol>
     </div>
   </div>
 
 
     <div class="post-content">
       
-        <h2 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h2><p>&emsp;&emsp;最基础的垃圾收集算法是“标记-清除”(Mark-Sweep)算法，分为“标记”和“清除”两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收所有被标记的对象。标记的过程见上章<a href="/2018/06/19/jvm3/#标记与二次标记">“标记与二次标记”</a>部分。</p>
-<p>&emsp;&emsp;这种算法的不足之处有两个：</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>&emsp;&emsp;任何一个Class文件都对应着唯一一个类或接口的定义信息，但类或接口不一定定义在文件里，也可以通过类加载器直接生成。</p>
+<p>&emsp;&emsp;Class文件是一组以8位字节为基础单位的二进制流，各个数据项目严格按照顺序紧凑地排列在Class文件之中，中间没有添加任何分隔符，这使得整个Class文件中存储的内容几乎全部是程序运行的必要数据，没有空隙存在。当遇到需要占用8位字节以上空间的数据项时，则会按照高位在前的方式分割成若干个8位字节进行存储。</p>
+<p>&emsp;&emsp;高位在前这种顺序称为“Big-Endian”，具体是指最高位字节在地址最低位、最低位字节在地址最高位的顺序来存储数据，它是SPARC、PowerPC等处理器的默认多字节存储顺序，而x86等处理器则是使用了相反的“Little-Endian”顺序来存储数据。</p>
+<p>&emsp;&emsp;根据Java虚拟机规范的规定，Class文件格式采用一种类似于C语言结构体的伪结构来存储数据，这种伪结构中只有两种数据类型：无符号数和表，后面的解析都要以这两种数据类型为基础。</p>
 <ul>
-<li>效率问题，标记和清除两个过程的效率都不高。</li>
-<li>空间问题，标记清除之后产生大量不连续的内存碎片，空间碎片太多可能导致以后在程序运行时需要分配较大对象时无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。</li>
+<li><p>无符号<br>无符号数属于基本的数据类型，以u1、u2、u4、u8来分别代表1个字节、2个字节、4个字节和8个字节的无符号数，无符号数可以用来描述数字、索引引用、数量值或者按照UTF-8编码构成字符串值。</p>
+</li>
+<li><p>表<br>表是由多个无符号数或者其他表作为数据项构成的复合数据类型，所有表都习惯性地以“_info”结尾。表用于描述有层次关系的复合结构的数据，整个Class文件本质上就是一张表。<br><img src="/2018/06/25/jvm8/class.jpg" alt="Class文件格式"></p>
+</li>
 </ul>
-<p>&emsp;&emsp;“标记-清除”算法示意图:<br><img src="/2018/06/20/jvm4/mark-sweep.jpg" alt="“标记-清除”算法示意图"></p>
-<h2 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h2><p>&emsp;&emsp;复制算法是将内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块内存用完了，就将还存活着的对象复制到另一块上面去，然后再把已使用过的内存空间一次清理掉。这样使得每次都是对整个半区进行内存回收，内存分配时也不用考虑内存碎片等复杂情况，只要移动堆顶指针，按顺序分配内存即可。这种算法的代价就是将内存缩小为原来的一半，太高了一些。</p>
-<p>&emsp;&emsp;复制算法示意图:<br><img src="/2018/06/20/jvm4/copy.jpg" alt="复制算法示意图"></p>
-<p>&emsp;&emsp;现代的商业虚拟机都采用复制算法来回收新生代。将内存划分为一块较大的Eden空间和两块较小的Survivor空间，每次使用Eden空间和其中的一块Survivor空间。当回收时，将Eden和Survivor中还存活着的对象一次性复制到另一块Survivor空间上，最后清理掉Eden和刚才用过的Survivor空间。HotSpot虚拟机默认Eden和Survivor的大小比例是8:1，也就是每次新生代中可用内存空间为整个新生代容量的90%（80%+10%），只有10%的内存会被“浪费”。</p>
-<p>&emsp;&emsp;我们没有办法保证每次回收都只有不多于10%的对象存活，当Survivor空间不够用时，需要依赖其他内存（这里指老年代）进行分配担保（Handle Promotion）。</p>
-<h2 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h2><p>&emsp;&emsp;复制收集算法在对象存活率较高时就要较多的复制操作，效率将会变低。更关键的是，如果不想浪费50%的空间，就需要有额外的空间进行分配担保，以应对被使用的内存中所有对象都100%存活的极端情况，所以在老年代一般不能直接选用这种算法。</p>
-<p>&emsp;&emsp;根据老年代的特点，有人提出了另外一种“标记-整理”（Mark-Compact）算法，标记过程仍然与“标记-清除”算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存。</p>
-<p>&emsp;&emsp;“标记-整理”算法的示意图:<br><img src="/2018/06/20/jvm4/mark-compack.jpg" alt="“标记-整理”算法示意图"></p>
-<h2 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h2><p>&emsp;&emsp;根据对象存活周期的不同将内存划分为几块，一般是把Java堆分为新生代和老年代。</p>
-<ul>
-<li>新生代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。</li>
-<li>老年代中，因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“标记—清理”或者“标记—整理”算法来进行回收。</li>
-</ul>
+<p>&emsp;&emsp;无论是无符号数还是表，当需要描述同一类型但数量不定的多个数据时，经常会使用一个前置的容量计数器加若干个连续的数据项的形式，这时称这一系列连续的某一类型的数据为某一类型的集合。</p>
+<h2 id="魔数与Class文件的版本"><a href="#魔数与Class文件的版本" class="headerlink" title="魔数与Class文件的版本"></a>魔数与Class文件的版本</h2><p>&emsp;&emsp;每个Class文件的头4个字节称为魔数（Magic Number），它的唯一作用是确定这个文件是否为一个能被虚拟机接受的Class文件。很多文件存储标准中都使用魔数来进行身份识别，譬如图片格式，如gif或者jpeg等在文件头中都存有魔数。使用魔数而不是扩展名来进行识别主要是基于安全方面的考虑，因为文件扩展名可以随意地改动。Class文件的魔数的值为：0xCAFEBABE。</p>
+<p>&emsp;&emsp;紧接着魔数的4个字节存储的是Class文件的版本号：第5和第6个字节是次版本号（Minor Version），第7和第8个字节是主版本号（Major Version）。高版本的JDK能向下兼容以前版本的Class文件，但不能运行以后版本的Class文件，即使文件格式并未发生任何变化，虚拟机也必须拒绝执行超过其版本号的Class文件。</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
+<p>&emsp;&emsp;</p>
 
       
     </div>
@@ -260,7 +265,7 @@
     </p>
     <p class="copyright-item">
       <span>原文链接: </span>
-      <a href="http://zllmath.me/2018/06/20/jvm4/">http://zllmath.me/2018/06/20/jvm4/</a>
+      <a href="http://zllmath.me/2018/06/25/jvm8/">http://zllmath.me/2018/06/25/jvm8/</a>
     </p>
     <p class="copyright-item">
       <span>许可协议: </span>
@@ -288,15 +293,9 @@
         
   <nav class="post-nav">
     
-      <a class="prev" href="/2018/06/20/jvm5/">
-        <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">JVM（五）：HotSpot的算法实现</span>
-        <span class="prev-text nav-mobile">上一篇</span>
-      </a>
     
-    
-      <a class="next" href="/2018/06/19/jvm3/">
-        <span class="next-text nav-default">JVM（三）：对象存活判定算法</span>
+      <a class="next" href="/2018/06/25/jvm7/">
+        <span class="next-text nav-default">JVM（七）：内存分配与回收策略</span>
         <span class="prev-text nav-mobile">下一篇</span>
         <i class="iconfont icon-right"></i>
       </a>
