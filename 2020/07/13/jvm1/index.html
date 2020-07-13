@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="JVM（一）：Java内存区域与内存溢出异常"/><meta name="keywords" content="JVM, zllmath" /><link rel="alternate" href="/default" title="zllmath"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zllmath.com/2020/07/13/jvm1/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>JVM（一）：Java内存区域与内存溢出异常 - zllmath</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zllmath</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zllmath</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">JVM（一）：Java内存区域与内存溢出异常
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-13
+        </span><span class="post-category">
+            <a href="/categories/JVM/">JVM</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#运行时数据区域"><span class="toc-text">运行时数据区域</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#程序计数器（Program-Counter-Register）"><span class="toc-text">程序计数器（Program Counter Register）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java虚拟机栈"><span class="toc-text">Java虚拟机栈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本地方法栈（Native-Method-Stack）"><span class="toc-text">本地方法栈（Native Method Stack）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java堆（Java-Heap）-emsp-emsp"><span class="toc-text">Java堆（Java Heap）  </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法区（Method-Area）"><span class="toc-text">方法区（Method Area）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行时常量池（Runtime-Constant-Pool）"><span class="toc-text">运行时常量池（Runtime Constant Pool）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#直接内存（Direct-Memory）"><span class="toc-text">直接内存（Direct Memory）</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="运行时数据区域"><a href="#运行时数据区域" class="headerlink" title="运行时数据区域"></a>运行时数据区域</h1><p>&emsp;&emsp;Java虚拟机在执行Java程序的过程中会把它所管理的内存划分为若干个不同的数据区域。这些区域有各自的用途，以及创建和销毁时间，有的区域随着虚拟机的启动而存在，有的区域则依赖用户线程的启动和结束而创建与销毁。<br><img src="/2020/07/13/jvm1/JVM运行时数据区.png" alt="JVM运行时数据区"></p>
+<h2 id="程序计数器（Program-Counter-Register）"><a href="#程序计数器（Program-Counter-Register）" class="headerlink" title="程序计数器（Program Counter Register）"></a>程序计数器（Program Counter Register）</h2><p>&emsp;&emsp;是一块较小的内存空间，它可以看作是当前线程所执行的字节码的行号指示器。字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令。分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器完成。为了线程切换后能恢复到正确的执行位置，每条线程都需要有一个独立的程序计数器，各线程计数器之间互不影响，独立存储，称这类内存区域为“线程私有”的内存。</p>
+<p>&emsp;&emsp;重要的一点——程序计数器，这是JVM规范中唯一一个没有规定会导致OutOfMemory（内存泄露，下文简称OOM）的区域。换句话上图中的其余4个区域，都有可能导致OOM。</p>
+<h2 id="Java虚拟机栈"><a href="#Java虚拟机栈" class="headerlink" title="Java虚拟机栈"></a>Java虚拟机栈</h2><p>&emsp;&emsp;这块内存区域就是我们常常说的“栈”，我们所熟知的是它用于存放变量，也是线程私有的。</p>
+<p>&emsp;&emsp;这块区域可能会抛出StackOverflowError或者OOM错误。JVM抛出StackOverflowError表示线程请求的栈深度大于JVM所允许的深度。对于单线程情况下，无论如何抛出的都是StackOverflowError。如果要抛出OOM异常，导致的原因是不断地在创建线程，直到将内存消耗殆尽。</p>
+<p>&emsp;&emsp;JVM的内存由堆内存 + 方法区内存 + 剩余内存，也就是剩余内存=操作系统分配给JVM的内存 - 堆内存 - 方法区内存。-Xss设置的是每个线程的栈容量，也就是说可以创建的线程数量 = 剩余内存 / 栈内存。此时如果栈内存越大，可以创建的线程数量就少，就容易出现OOM；如果栈内存越小，可以创建的线程数量就多，就不容易出现OOM。</p>
+<p>&emsp;&emsp;要避免这种情况最好就是减少堆内存+方法区内存，或者适当减少栈内存。对于栈内存的配置，一般采用默认值1M，或者采用64位操作系统以及64位的JVM。</p>
+<h2 id="本地方法栈（Native-Method-Stack）"><a href="#本地方法栈（Native-Method-Stack）" class="headerlink" title="本地方法栈（Native Method Stack）"></a>本地方法栈（Native Method Stack）</h2><p>&emsp;&emsp;本地方法栈和虚拟机栈类似，不同的是虚拟机栈服务的是Java方法，而本地方法栈服务的是Native方法。在HotSpot虚拟机实现中是把本地方法栈和虚拟机栈合二为一的，同理它也会抛出StackOverflowError和OOM异常。</p>
+<h2 id="Java堆（Java-Heap）-emsp-emsp"><a href="#Java堆（Java-Heap）-emsp-emsp" class="headerlink" title="Java堆（Java Heap）&emsp;&emsp;"></a>Java堆（Java Heap）&emsp;&emsp;</h2><p>&emsp;&emsp;Java堆是Java虚拟机所管理的内存中最大的一块，在虚拟机启动时创建，对象实例以及数组内存都要在堆上分配。堆是所有线程共享的一块区域，它的确是用来存放对象实例，也是垃圾回收GC的主要区域。实际上它还能细分为：新生代（Young Generation）、老年代（Old Generation）。对于新生代又分为Eden空间、From Survivor空间、To Survivor空间。</p>
+<p>&emsp;&emsp;如果在堆上没有内存完成实例分配，并且堆也无法再扩展时，将会抛出OOM异常。</p>
+<h2 id="方法区（Method-Area）"><a href="#方法区（Method-Area）" class="headerlink" title="方法区（Method Area）"></a>方法区（Method Area）</h2><p>&emsp;&emsp;与堆一样，是被所有线程共享的区域，用于存储已被虚拟机加载的类信息、常量、静态变量等信息。方法区和堆的划分是JVM规范的定义，而不同虚拟机有不同实现，对于Hotspot虚拟机来说，将方法区纳入GC管理范围，这样就不必单独管理方法区的内存，所以就有了”永久代“这么一说。</p>
+<p>&emsp;&emsp;对于HotSpot虚拟机，根据官方发布的路线图信息，现在也有放弃永久代并逐步改为采用Native Memory来实现方法区的规划了，在JDK 1.7的HotSpot中，已经把原本放在永久代的字符串常量池移出。</p>
+<p>&emsp;&emsp;根据Java虚拟机规范的规定，当方法区无法满足内存分配需求时，将抛出OOM异常。</p>
+<h2 id="运行时常量池（Runtime-Constant-Pool）"><a href="#运行时常量池（Runtime-Constant-Pool）" class="headerlink" title="运行时常量池（Runtime Constant Pool）"></a>运行时常量池（Runtime Constant Pool）</h2><p>&emsp;&emsp;运行时常量池是方法区的一部分，Class文件中除了有类的版本、字段、方法、接口等描述信息外，还有一项信息是常量池，用于存放编译期生成的各种字面量和符号引用，这部分内容将在类加载后进入方法区的运行时常量池中存放。</p>
+<p>&emsp;&emsp;行时常量池相对于Class文件常量池的另外一个重要特征是具备动态性，Java语言并不要求常量一定只有编译期才能产生，也就是并非预置入Class文件中常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中，这种特性被开发人员利用得比较多的便是String类的intern()方法。</p>
+<p>&emsp;&emsp;当常量池无法再申请到内存时会抛出OOM异常。</p>
+<h2 id="直接内存（Direct-Memory）"><a href="#直接内存（Direct-Memory）" class="headerlink" title="直接内存（Direct Memory）"></a>直接内存（Direct Memory）</h2><p>&emsp;&emsp;直接内存并不是虚拟机运行时数据区的一部分，也不是Java虚拟机规范中定义的内存区域。但是这部分内存也被频繁地使用，而且也可能导致OutOfMemoryError异常出现。</p>
+<p>&emsp;&emsp;在JDK 1.4中新加入了NIO(New Input/Output)类，引入了一种基于通道(Channel)与缓冲区(Buffer)的I/O方式，它可以使用Native函数库直接分配堆外内存，然后通过一个存储在Java堆中的DirectByteBuffer对象作为这块内存的引用进行操作。这样能在一些场景中显著提高性能，因为避免了在Java堆和Native堆中来回复制数据。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://zllmath.com">ZLL&CM</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://zllmath.com/2020/07/13/jvm1/">https://zllmath.com/2020/07/13/jvm1/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/JVM/">JVM</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2020/07/13/jvm2/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">JVM（二）：HotSpot虚拟机对象探秘</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2020/07/13/SpringMvc1/">
+        <span class="next-text nav-default">看透SpringMVC（一）：网站架构及其演变过程</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/ahonn" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2018 - 2020<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">ZLL&CM</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

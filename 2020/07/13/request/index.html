@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="跨域请求"/><meta name="keywords" content="小组分享, zllmath" /><link rel="alternate" href="/default" title="zllmath"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://zllmath.com/2020/07/13/request/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>跨域请求 - zllmath</title>
+  </head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">zllmath</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签
+          </li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">zllmath</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            标签
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/categories/">
+            分类
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">跨域请求
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-13
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#跨域资源共享（-CORS-）"><span class="toc-text">跨域资源共享（ CORS ）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简单请求"><span class="toc-text">简单请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#预检请求"><span class="toc-text">预检请求</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>&emsp;&emsp;当一个资源从与该资源本身所在的服务器不同的域或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。</p>
+<p>&emsp;&emsp;出于安全原因，浏览器限制从脚本内发起的跨源HTTP请求。例如，XMLHttpRequest和Fetch API遵循同源策略。 这意味着使用这些API的Web应用程序只能从加载应用程序的同一个域请求HTTP资源，除非使用CORS头文件。</p>
+<p>&emsp;&emsp;跨域资源共享（ CORS ）机制允许 Web 应用服务器进行跨域访问控制，从而使跨域数据传输得以安全进行。</p>
+<h2 id="跨域资源共享（-CORS-）"><a href="#跨域资源共享（-CORS-）" class="headerlink" title="跨域资源共享（ CORS ）"></a>跨域资源共享（ CORS ）</h2><p>&emsp;&emsp;CORS Headers</p>
+<ul>
+<li>Access-Control-Allow-Origin<br>Indicates whether the response can be shared.</li>
+<li>Access-Control-Allow-Credentials<br>Indicates whether or not the response to the request can be exposed when the credentials flag is true.</li>
+<li>Access-Control-Allow-Headers<br>Used in response to a preflight request to indicate which HTTP headers can be used when making the actual request.</li>
+<li>Access-Control-Allow-Methods<br>Specifies the method or methods allowed when accessing the resource in response to a preflight request.</li>
+<li>Access-Control-Expose-Headers<br>Indicates which headers can be exposed as part of the response by listing their names.</li>
+<li>Access-Control-Max-Age<br>Indicates how long the results of a preflight request can be cached.</li>
+<li>Access-Control-Request-Headers<br>Used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.</li>
+<li>Access-Control-Request-Method<br>Used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.</li>
+<li>Origin<br>Indicates where a fetch originates from.</li>
+</ul>
+<h2 id="简单请求"><a href="#简单请求" class="headerlink" title="简单请求"></a>简单请求</h2><p>&emsp;&emsp;某些请求不会触发 CORS 预检请求，称这样的请求为“简单请求”。</p>
+<ul>
+<li>使用下列方法之一：<br>GET HEAD POST<br><span id="jump"></span></li>
+<li><a href="https://fetch.spec.whatwg.org/" target="_blank" rel="noopener">Fetch</a> 规范定义了对 CORS 安全的首部字段集合，不得人为设置该集合之外的其他首部字段。该集合为：<br>Accept Accept-Language Content-Language Content-Type DPR Downlink Save-Data Viewport-Width Width</li>
+<li>Content-Type 的值仅限于下列三者之一：<br>text/plain multipart/form-data application/x-www-form-urlencoded</li>
+</ul>
+<h2 id="预检请求"><a href="#预检请求" class="headerlink" title="预检请求"></a>预检请求</h2><p>&emsp;&emsp;与前述简单请求不同，“需预检的请求”要求必须首先使用 OPTIONS   方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求。”预检请求“的使用，可以避免跨域请求对服务器的用户数据产生未预期的影响。</p>
+<p>&emsp;&emsp;当请求满足下述任一条件时，即应首先发送预检请求：</p>
+<ul>
+<li>使用了下面任一 HTTP 方法：<br>PUT DELETE CONNECT OPTIONS TRACE PATCH</li>
+<li>人为设置了对 CORS 安全的<a href="#jump">首部字段集合</a>之外的其他首部字段。</li>
+<li>Content-Type 的值不属于上述值之一<br>&emsp;&emsp;</li>
+</ul>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="https://zllmath.com">ZLL&CM</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="https://zllmath.com/2020/07/13/request/">https://zllmath.com/2020/07/13/request/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/小组分享/">小组分享</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2020/07/13/test/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">数据结构与算法 笔记</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2020/07/13/jvm9/">
+        <span class="next-text nav-default">JVM（九）：虚拟机类加载机制</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+        <a href="https://github.com/ahonn" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2018 - 2020<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">ZLL&CM</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>
